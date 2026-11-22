@@ -1,0 +1,38 @@
+name: Build GitBridge for Windows
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Build self-contained Qt addon
+        shell: pwsh
+        run: ./build_windows.ps1
+      - name: Upload addon
+        uses: actions/upload-artifact@v4
+        with:
+          name: GitBridge-Windows
+          path: |
+            GitBridge.ankiaddon
+            GitBridge.ankiaddon.sha256
+      - name: Publish GitHub Release on version tag
+        if: startsWith(github.ref, 'refs/tags/v')
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create $env:GITHUB_REF_NAME GitBridge.ankiaddon GitBridge.ankiaddon.sha256 --verify-tag --title "GitBridge $env:GITHUB_REF_NAME" --notes-file RELEASE_NOTES.md

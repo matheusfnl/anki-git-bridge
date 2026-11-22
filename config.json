@@ -1,0 +1,9 @@
+{
+  "source": "",
+  "destination": "",
+  "remote": "",
+  "branch": "main",
+  "max_file_mib": 95,
+  "automatic": false,
+  "backup_on_exit": false
+}
